@@ -7,7 +7,7 @@ This file is shipped inside the UPM package so an AI assistant in a consuming Un
 - Package ID: `com.actionfit.customsymbols`
 - Display name: Custom Symbols
 - Repository: `https://github.com/ActionFit-Editor/Custom_Symbols.git`
-- Current package version at generation time: `1.0.4`
+- Current package version at generation time: `1.0.5`
 - Unity version: `6000.2`
 
 ## Purpose
@@ -52,6 +52,7 @@ Read this file when:
 - Main menu: `Tools/Package/Custom Symbols/Open Window`.
 - Use this guide when changing scripting define symbol presets, platform filters, build inclusion rules, or symbol settings assets.
 - Symbol changes can affect compilation and build output, so verify target platform behavior after changes.
+- `SymbolsBuildProcessor` must not show blocking dialogs in `Application.isBatchMode`; CI/AutoBuild should log symbol differences and continue with the computed build symbols. Keep the interactive confirmation dialog for normal editor builds.
 
 ## Package Tools Menu
 

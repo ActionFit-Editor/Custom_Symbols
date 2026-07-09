@@ -58,19 +58,30 @@ public class SymbolsBuildProcessor : IPreprocessBuildWithReport, IPostprocessBui
 
             message += $"빌드 적용 심볼 ({buildSymbols.Count}개):\n  {string.Join("\n  ", buildSymbols)}";
 
-            bool proceed = EditorUtility.DisplayDialog(
-                "Custom Symbols - Build",
-                message,
-                "빌드 진행",
-                "빌드 취소"
-            );
+            if (Application.isBatchMode)
+            {
+                UnityEngine.Debug.LogWarning(
+                    $"[Symbols] Build symbols differ for {target}; batchmode continues without confirmation.\n" +
+                    $"Excluded from build: {FormatSymbols(editorOnly)}\n" +
+                    $"Included only in build: {FormatSymbols(buildOnly)}\n" +
+                    $"Applied build symbols ({buildSymbols.Count}): {FormatSymbols(buildSymbols)}");
+            }
+            else
+            {
+                bool proceed = EditorUtility.DisplayDialog(
+                    "Custom Symbols - Build",
+                    message,
+                    "빌드 진행",
+                    "빌드 취소"
+                );
 
-            if (!proceed)
-                throw new BuildFailedException("[Symbols] Build cancelled by user.");
+                if (!proceed)
+                    throw new BuildFailedException("[Symbols] Build cancelled by user.");
+            }
         }
 
         PlayerSettings.SetScriptingDefineSymbols(namedTarget, buildSymbols.ToArray());
-        Debug.Log($"[Symbols] Build pre-process: applied build symbols for {target}");
+        UnityEngine.Debug.Log($"[Symbols] Build pre-process: applied build symbols for {target}");
     }
 
     // 빌드 완료 후: 에디터용 전체 심볼 복원
@@ -90,6 +101,11 @@ public class SymbolsBuildProcessor : IPreprocessBuildWithReport, IPostprocessBui
         List<string> symbols = settings.GetPlatformSymbols(target);
 
         PlayerSettings.SetScriptingDefineSymbols(namedTarget, symbols.ToArray());
-        Debug.Log($"[Symbols] Build post-process: restored editor symbols for {target}");
+        UnityEngine.Debug.Log($"[Symbols] Build post-process: restored editor symbols for {target}");
+    }
+
+    private static string FormatSymbols(List<string> symbols)
+    {
+        return symbols.Count == 0 ? "(none)" : string.Join(", ", symbols);
     }
 }

@@ -1,6 +1,6 @@
 {
     "name":  "com.actionfit.customsymbols",
-    "version":  "1.0.4",
+    "version":  "1.0.5",
     "displayName":  "Custom Symbols",
     "description":  "스크립팅 디파인 심볼을 플랫폼별(All/Windows/Mac/Android/iOS)로 관리하고, 빌드 시 includedInBuild가 해제된 심볼을 제외 적용 후 복원하는 에디터 툴. 설정은 소비자 프로젝트의 CustomSymbolsSO 에셋에 저장(타입 기반 자동 탐색).",
     "unity":  "6000.2",
