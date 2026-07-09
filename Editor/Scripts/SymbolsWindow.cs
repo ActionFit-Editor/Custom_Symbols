@@ -20,7 +20,7 @@ public class SymbolsWindow : EditorWindow, IActiveBuildTargetChanged
     // 인터페이스 구현: 콜백 순서
     public int callbackOrder => 0;
 
-    [MenuItem("Tools/ActionFit/Custom Symbols", false, 20)]
+    [MenuItem("Tools/Package/Custom Symbols/Open Window", false, 20)]
     public static void ShowWindow() => GetWindow<SymbolsWindow>("Custom Symbols").Show();
 
     private void OnEnable()

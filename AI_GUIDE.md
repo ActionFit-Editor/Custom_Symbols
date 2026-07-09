@@ -7,7 +7,7 @@ This file is shipped inside the UPM package so an AI assistant in a consuming Un
 - Package ID: `com.actionfit.customsymbols`
 - Display name: Custom Symbols
 - Repository: `https://github.com/ActionFit-Editor/Custom_Symbols.git`
-- Current package version at generation time: `1.0.3`
+- Current package version at generation time: `1.0.4`
 - Unity version: `6000.2`
 
 ## Purpose
@@ -49,9 +49,18 @@ Read this file when:
 
 ## Menu And Behavior Notes
 
-- Main menu: `Tools/ActionFit/Custom Symbols`.
+- Main menu: `Tools/Package/Custom Symbols/Open Window`.
 - Use this guide when changing scripting define symbol presets, platform filters, build inclusion rules, or symbol settings assets.
 - Symbol changes can affect compilation and build output, so verify target platform behavior after changes.
+
+## Package Tools Menu
+
+- Unity menu root: `Tools/Package/Custom Symbols/`.
+- Keep package commands under this package root.
+- Lower separated entries:
+- `Setting SO`: focuses this package's settings ScriptableObject.
+- `README`: opens this package README.
+- Do not add README or Setting SO access back to Custom Package Manager package rows or Project Files.
 
 ## Release Note Rules
 

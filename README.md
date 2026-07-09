@@ -7,15 +7,22 @@
 ```json
 {
   "dependencies": {
-    "com.actionfit.customsymbols": "https://github.com/ActionFit-Editor/Custom_Symbols.git#1.0.1"
+    "com.actionfit.customsymbols": "https://github.com/ActionFit-Editor/Custom_Symbols.git#1.0.4"
   }
 }
 ```
 
+## Unity Menu
+
+- Package root: `Tools > Package > Custom Symbols`.
+- README: `Tools > Package > Custom Symbols > README`.
+- Setting SO: `Tools > Package > Custom Symbols > Setting SO`.
+- Package commands stay under the same package root and appear above the separated README/Setting SO entries when those entries exist.
+
 ## 구성
 
 - **Editor** (`com.actionfit.customsymbols.Editor`):
-  - `SymbolsWindow` — 메뉴 `Build > Custom Symbols`
+  - `SymbolsWindow` — 메뉴 `Tools > Package > Custom Symbols > Open Window`
   - `CustomSymbolsSO` — 설정 SO (`Create New`로 소비자 Assets에 생성, 위치 자유)
   - `SymbolsBuildProcessor` — 빌드 전/후 심볼 적용·복원
 
