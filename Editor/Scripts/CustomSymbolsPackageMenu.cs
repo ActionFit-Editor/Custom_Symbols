@@ -11,7 +11,7 @@ public static class CustomSymbolsPackageMenu
     private const int ReadmePriority = 901;
 
     [MenuItem(MenuRoot + "Setting SO", false, SettingPriority)]
-    private static void FocusSettingSo() => FocusObject(CustomSymbolsSO.FindSettingsAsset(), PackageId);
+    private static void FocusSettingSo() => FocusObject(CustomSymbolsSO.FindOrCreateSettingsAsset(), PackageId);
 
     [MenuItem(MenuRoot + "README", false, ReadmePriority)]
     private static void OpenReadme()

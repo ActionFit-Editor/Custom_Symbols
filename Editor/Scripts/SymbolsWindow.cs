@@ -9,8 +9,6 @@ using UnityEngine;
 // IActiveBuildTargetChanged를 상속받아 플랫폼 변경을 감지합니다.
 public class SymbolsWindow : EditorWindow, IActiveBuildTargetChanged
 {
-    private const string LastUsedSettingPath = "LastUsedSettingPath";
-
     [SerializeField]
     private CustomSymbolsSO _settingSO;
     private SerializedObject _serializedSettings;
@@ -25,15 +23,11 @@ public class SymbolsWindow : EditorWindow, IActiveBuildTargetChanged
 
     private void OnEnable()
     {
-        string lastUsedPath = EditorPrefs.GetString(LastUsedSettingPath, "");
-        if (!string.IsNullOrEmpty(lastUsedPath))
+        _settingSO = CustomSymbolsSO.FindOrCreateSettingsAsset();
+        if (_settingSO != null)
         {
-            _settingSO = AssetDatabase.LoadAssetAtPath<CustomSymbolsSO>(lastUsedPath);
-            if (_settingSO != null)
-            {
-                _serializedSettings = new SerializedObject(_settingSO);
-                InitReorderableList();
-            }
+            _serializedSettings = new SerializedObject(_settingSO);
+            InitReorderableList();
         }
     }
 
@@ -42,8 +36,7 @@ public class SymbolsWindow : EditorWindow, IActiveBuildTargetChanged
     {
         if (_settingSO == null)
         {
-            string path = EditorPrefs.GetString(LastUsedSettingPath, "");
-            _settingSO = AssetDatabase.LoadAssetAtPath<CustomSymbolsSO>(path);
+            _settingSO = CustomSymbolsSO.FindOrCreateSettingsAsset();
         }
         if (_settingSO != null)
         {
@@ -227,7 +220,7 @@ public class SymbolsWindow : EditorWindow, IActiveBuildTargetChanged
         if (EditorGUI.EndChangeCheck() && _settingSO != null)
         {
             _serializedSettings = new SerializedObject(_settingSO);
-            EditorPrefs.SetString(LastUsedSettingPath, AssetDatabase.GetAssetPath(_settingSO));
+            EditorPrefs.SetString(CustomSymbolsSO.SettingsPrefsKey, AssetDatabase.GetAssetPath(_settingSO));
             InitReorderableList();
         }
         if (GUILayout.Button("Create New", GUILayout.Width(80f)))
@@ -235,13 +228,13 @@ public class SymbolsWindow : EditorWindow, IActiveBuildTargetChanged
             string path = EditorUtility.SaveFilePanelInProject("Create Symbols Settings", "SymbolsSettings", "asset", "");
             if (!string.IsNullOrEmpty(path))
             {
-                CustomSymbolsSO newSettings = CreateInstance<CustomSymbolsSO>();
-                AssetDatabase.CreateAsset(newSettings, path);
-                AssetDatabase.SaveAssets();
-                _settingSO = newSettings;
-                _serializedSettings = new SerializedObject(_settingSO);
-                EditorPrefs.SetString(LastUsedSettingPath, path);
-                InitReorderableList();
+                CustomSymbolsSO newSettings = CustomSymbolsSO.CreateSettingsAsset(path);
+                if (newSettings != null)
+                {
+                    _settingSO = newSettings;
+                    _serializedSettings = new SerializedObject(_settingSO);
+                    InitReorderableList();
+                }
             }
         }
         EditorGUILayout.EndHorizontal();

@@ -7,7 +7,7 @@ This file is shipped inside the UPM package so an AI assistant in a consuming Un
 - Package ID: `com.actionfit.customsymbols`
 - Display name: Custom Symbols
 - Repository: `https://github.com/ActionFit-Editor/Custom_Symbols.git`
-- Current package version at generation time: `1.0.5`
+- Current package version at generation time: `1.0.6`
 - Unity version: `6000.2`
 
 ## Purpose
@@ -50,6 +50,9 @@ Read this file when:
 ## Menu And Behavior Notes
 
 - Main menu: `Tools/Package/Custom Symbols/Open Window`.
+- If no `CustomSymbolsSO` exists anywhere in the project, the editor bootstrap creates `Assets/_Data/_CustomSymbols/SymbolsSettings.asset`. Existing assets at any location are preserved and prevent default creation.
+- First creation reads the current Standalone, Android, and iOS scripting define symbols. Every discovered symbol starts with `includedInBuild=true`; Standalone maps to Win/Mac, Android maps to AOS, iOS maps to iOS, and the intersection is also stored in `allPlatformSymbols`.
+- `FindOrCreateSettingsAsset()` is the shared entry point for the bootstrap, settings menu, window, build processor, and Build Automation reflection bridge. Manual `Create New` assets use the same current-project initialization.
 - Use this guide when changing scripting define symbol presets, platform filters, build inclusion rules, or symbol settings assets.
 - Symbol changes can affect compilation and build output, so verify target platform behavior after changes.
 - `SymbolsBuildProcessor` must not show blocking dialogs in `Application.isBatchMode`; CI/AutoBuild should log symbol differences and continue with the computed build symbols. Keep the interactive confirmation dialog for normal editor builds.
@@ -59,7 +62,7 @@ Read this file when:
 - Unity menu root: `Tools/Package/Custom Symbols/`.
 - Keep package commands under this package root.
 - Lower separated entries:
-- `Setting SO`: focuses this package's settings ScriptableObject.
+- `Setting SO`: creates the default settings asset when none exists, then focuses it.
 - `README`: opens this package README.
 - Do not add README or Setting SO access back to Custom Package Manager package rows or Project Files.
 

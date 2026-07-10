@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
+using UnityEditor.Build;
 #endif
 
 [CreateAssetMenu(fileName = "SymbolsSettings", menuName = "CustomEditor/CustomSymbols")]
@@ -31,29 +33,159 @@ public class CustomSymbolsSO : ScriptableObject
 
     #region Build Utility
 
+    public const string SettingsPrefsKey = "LastUsedSettingPath";
+    public const string DefaultSettingsAssetPath = "Assets/_Data/_CustomSymbols/SymbolsSettings.asset";
+
     /// <summary>
     /// AssetDatabase에서 CustomSymbolsSO 에셋을 검색하여 반환합니다.
-    /// EditorPrefs에 저장된 경로를 우선 사용하고, 없으면 AssetDatabase에서 검색합니다.
+    /// EditorPrefs 경로, 기본 _Data 경로, 타입 검색 순서로 확인합니다.
     /// </summary>
     public static CustomSymbolsSO FindSettingsAsset()
     {
-        // SymbolsWindow에서 저장한 경로 우선 확인
-        string savedPath = EditorPrefs.GetString("LastUsedSettingPath", "");
-        if (!string.IsNullOrEmpty(savedPath))
-        {
-            var asset = AssetDatabase.LoadAssetAtPath<CustomSymbolsSO>(savedPath);
-            if (asset != null) return asset;
-        }
+        var savedSettings = LoadAndRemember(EditorPrefs.GetString(SettingsPrefsKey, ""));
+        if (savedSettings != null) return savedSettings;
 
-        // 경로가 없거나 유효하지 않으면 AssetDatabase 검색
+        var defaultSettings = LoadAndRemember(DefaultSettingsAssetPath);
+        if (defaultSettings != null) return defaultSettings;
+
         string[] guids = AssetDatabase.FindAssets("t:CustomSymbolsSO");
-        if (guids.Length > 0)
+        if (guids.Length == 0) return null;
+
+        string path = guids
+            .Select(AssetDatabase.GUIDToAssetPath)
+            .OrderBy(assetPath => assetPath.StartsWith("Assets/", StringComparison.Ordinal) ? 0 : 1)
+            .ThenBy(assetPath => assetPath, StringComparer.Ordinal)
+            .FirstOrDefault();
+        return LoadAndRemember(path);
+    }
+
+    /// <summary>
+    /// 기존 CustomSymbolsSO를 반환하거나 기본 _Data 경로에 현재 프로젝트 심볼로 초기화된 에셋을 생성합니다.
+    /// </summary>
+    public static CustomSymbolsSO FindOrCreateSettingsAsset()
+    {
+        var settings = FindSettingsAsset();
+        if (settings != null) return settings;
+
+        return CreateSettingsAsset(DefaultSettingsAssetPath);
+    }
+
+    internal static CustomSymbolsSO CreateSettingsAsset(string assetPath)
+    {
+        if (string.IsNullOrWhiteSpace(assetPath))
         {
-            string path = AssetDatabase.GUIDToAssetPath(guids[0]);
-            return AssetDatabase.LoadAssetAtPath<CustomSymbolsSO>(path);
+            UnityEngine.Debug.LogError("[CustomSymbolsSO] Settings asset path is empty.");
+            return null;
         }
 
-        return null;
+        UnityEngine.Object existingAsset = AssetDatabase.LoadMainAssetAtPath(assetPath);
+        if (existingAsset != null)
+        {
+            UnityEngine.Debug.LogError($"[CustomSymbolsSO] Cannot create settings asset because the path is already in use: {assetPath}");
+            return null;
+        }
+
+        EnsureFolder(Path.GetDirectoryName(assetPath)?.Replace("\\", "/"));
+
+        var settings = CreateInstance<CustomSymbolsSO>();
+        settings.InitializeFromCurrentProjectSymbols();
+        AssetDatabase.CreateAsset(settings, assetPath);
+        EditorPrefs.SetString(SettingsPrefsKey, assetPath);
+        EditorUtility.SetDirty(settings);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+
+        UnityEngine.Debug.Log($"[CustomSymbolsSO] Settings asset created: {assetPath}");
+        return settings;
+    }
+
+    internal void InitializeFromCurrentProjectSymbols()
+    {
+        InitializeFromPlatformSymbols(
+            GetProjectSymbols(NamedBuildTarget.Standalone),
+            GetProjectSymbols(NamedBuildTarget.Android),
+            GetProjectSymbols(NamedBuildTarget.iOS));
+    }
+
+    internal void InitializeFromPlatformSymbols(
+        IEnumerable<string> standaloneSymbols,
+        IEnumerable<string> androidSymbols,
+        IEnumerable<string> iosSymbols)
+    {
+        List<string> standalone = NormalizeSymbols(standaloneSymbols);
+        List<string> android = NormalizeSymbols(androidSymbols);
+        List<string> ios = NormalizeSymbols(iosSymbols);
+
+        customAllSymbols ??= new List<CustomSymbolEntry>();
+        allPlatformSymbols ??= new List<string>();
+        windowPlatformSymbols ??= new List<string>();
+        macPlatformSymbols ??= new List<string>();
+        aosPlatformSymbols ??= new List<string>();
+        iosPlatformSymbols ??= new List<string>();
+
+        customAllSymbols.Clear();
+        allPlatformSymbols.Clear();
+        windowPlatformSymbols.Clear();
+        macPlatformSymbols.Clear();
+        aosPlatformSymbols.Clear();
+        iosPlatformSymbols.Clear();
+
+        var commonSymbols = new HashSet<string>(standalone, StringComparer.Ordinal);
+        commonSymbols.IntersectWith(android);
+        commonSymbols.IntersectWith(ios);
+
+        allPlatformSymbols.AddRange(commonSymbols.OrderBy(symbol => symbol, StringComparer.Ordinal));
+        windowPlatformSymbols.AddRange(standalone);
+        macPlatformSymbols.AddRange(standalone);
+        aosPlatformSymbols.AddRange(android);
+        iosPlatformSymbols.AddRange(ios);
+
+        IEnumerable<string> allSymbols = standalone
+            .Concat(android)
+            .Concat(ios)
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(symbol => symbol, StringComparer.Ordinal);
+        customAllSymbols.AddRange(allSymbols.Select(symbol => new CustomSymbolEntry
+        {
+            symbolName = symbol,
+            includedInBuild = true
+        }));
+    }
+
+    private static IEnumerable<string> GetProjectSymbols(NamedBuildTarget target)
+    {
+        PlayerSettings.GetScriptingDefineSymbols(target, out string[] symbols);
+        return symbols ?? Array.Empty<string>();
+    }
+
+    private static List<string> NormalizeSymbols(IEnumerable<string> symbols)
+    {
+        return (symbols ?? Enumerable.Empty<string>())
+            .Select(symbol => symbol?.Trim())
+            .Where(symbol => !string.IsNullOrEmpty(symbol))
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(symbol => symbol, StringComparer.Ordinal)
+            .ToList();
+    }
+
+    private static CustomSymbolsSO LoadAndRemember(string assetPath)
+    {
+        if (string.IsNullOrWhiteSpace(assetPath)) return null;
+
+        var settings = AssetDatabase.LoadAssetAtPath<CustomSymbolsSO>(assetPath);
+        if (settings != null)
+            EditorPrefs.SetString(SettingsPrefsKey, assetPath);
+
+        return settings;
+    }
+
+    private static void EnsureFolder(string folderPath)
+    {
+        if (string.IsNullOrWhiteSpace(folderPath) || AssetDatabase.IsValidFolder(folderPath)) return;
+
+        string parentPath = Path.GetDirectoryName(folderPath)?.Replace("\\", "/");
+        EnsureFolder(parentPath);
+        AssetDatabase.CreateFolder(parentPath, Path.GetFileName(folderPath));
     }
 
     // 현재 플랫폼에 해당하는 전체 심볼 목록 반환 (allPlatform + 플랫폼별)

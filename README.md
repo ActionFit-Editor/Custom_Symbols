@@ -7,7 +7,7 @@
 ```json
 {
   "dependencies": {
-    "com.actionfit.customsymbols": "https://github.com/ActionFit-Editor/Custom_Symbols.git#1.0.5"
+    "com.actionfit.customsymbols": "https://github.com/ActionFit-Editor/Custom_Symbols.git#1.0.6"
   }
 }
 ```
@@ -16,19 +16,21 @@
 
 - Package root: `Tools > Package > Custom Symbols`.
 - README: `Tools > Package > Custom Symbols > README`.
-- Setting SO: `Tools > Package > Custom Symbols > Setting SO`.
+- Setting SO: `Tools > Package > Custom Symbols > Setting SO` (없으면 기본 경로에 생성 후 선택).
 - Package commands stay under the same package root and appear above the separated README/Setting SO entries when those entries exist.
 
 ## 구성
 
 - **Editor** (`com.actionfit.customsymbols.Editor`):
   - `SymbolsWindow` — 메뉴 `Tools > Package > Custom Symbols > Open Window`
-  - `CustomSymbolsSO` — 설정 SO (`Create New`로 소비자 Assets에 생성, 위치 자유)
+  - `CustomSymbolsSO` — 설정 SO (최초 자동 생성, 추가 `Create New` 위치 자유)
   - `SymbolsBuildProcessor` — 빌드 전/후 심볼 적용·복원
 
 ## 설정 저장
 
-`CustomSymbolsSO` 에셋에 저장되며, `EditorPrefs` 최근 경로 → 타입 기반 `FindAssets`로 위치와 무관하게 탐색합니다. 패키지에는 설정을 저장하지 않습니다.
+프로젝트에 `CustomSymbolsSO`가 하나도 없으면 Unity Editor 로드 시 `Assets/_Data/_CustomSymbols/SymbolsSettings.asset`을 자동 생성합니다. 최초 생성 시 Standalone, Android, iOS의 현재 scripting define symbols를 모두 가져와 `Build`를 활성화하고, Standalone은 Win/Mac, Android는 AOS, iOS는 iOS 플랫폼 체크에 반영합니다. 모든 대상에 공통인 심볼은 `All`에도 등록합니다.
+
+기존 `CustomSymbolsSO`가 다른 위치에 있으면 새 에셋을 만들거나 기존 값을 덮어쓰지 않습니다. 탐색 순서는 `EditorPrefs` 최근 경로 → 기본 `_Data` 경로 → 타입 기반 `FindAssets`이며, 패키지 내부에는 프로젝트 설정을 저장하지 않습니다. 창의 `Create New`로 추가 에셋을 만들 때도 생성 시점의 현재 프로젝트 심볼로 동일하게 초기화합니다.
 
 ## 선택적 연동
 

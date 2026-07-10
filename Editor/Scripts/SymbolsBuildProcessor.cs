@@ -32,8 +32,12 @@ public class SymbolsBuildProcessor : IPreprocessBuildWithReport, IPostprocessBui
     {
         if (!IsSymbolManageEnabled()) return;
 
-        CustomSymbolsSO settings = CustomSymbolsSO.FindSettingsAsset();
-        if (settings == null) return;
+        CustomSymbolsSO settings = CustomSymbolsSO.FindOrCreateSettingsAsset();
+        if (settings == null)
+        {
+            UnityEngine.Debug.LogError("[SymbolsBuildProcessor] CustomSymbolsSO could not be found or created before build.");
+            return;
+        }
 
         BuildTarget target = report.summary.platform;
         var namedTarget = NamedBuildTarget.FromBuildTargetGroup(BuildPipeline.GetBuildTargetGroup(target));
@@ -94,8 +98,12 @@ public class SymbolsBuildProcessor : IPreprocessBuildWithReport, IPostprocessBui
     // 에디터 심볼 복원
     private static void RestoreEditorSymbols(BuildTarget target)
     {
-        CustomSymbolsSO settings = CustomSymbolsSO.FindSettingsAsset();
-        if (settings == null) return;
+        CustomSymbolsSO settings = CustomSymbolsSO.FindOrCreateSettingsAsset();
+        if (settings == null)
+        {
+            UnityEngine.Debug.LogError("[SymbolsBuildProcessor] CustomSymbolsSO could not be found or created after build.");
+            return;
+        }
 
         var namedTarget = NamedBuildTarget.FromBuildTargetGroup(BuildPipeline.GetBuildTargetGroup(target));
         List<string> symbols = settings.GetPlatformSymbols(target);
