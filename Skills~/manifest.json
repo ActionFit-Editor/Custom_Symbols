@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 2,
+  "skillPrefix": "custom-symbols",
+  "helpSkill": "custom-symbols-help",
+  "skills": [
+    {
+      "name": "custom-symbols-help",
+      "agents": ["codex", "claude"],
+      "includeShared": false,
+      "access": "read-only"
+    },
+    {
+      "name": "custom-symbols-audit",
+      "agents": ["codex", "claude"],
+      "includeShared": false,
+      "access": "read-only"
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Audit Custom Symbols"
+  short_description: "Audit define-symbol settings without applying changes"
+  default_prompt: "Use $custom-symbols-audit to compare configured and current define symbols without writes."

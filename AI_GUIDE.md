@@ -7,7 +7,7 @@ This file is shipped inside the UPM package so an AI assistant in a consuming Un
 - Package ID: `com.actionfit.customsymbols`
 - Display name: Custom Symbols
 - Repository: `https://github.com/ActionFit-Editor/Custom_Symbols.git`
-- Current package version at generation time: `1.0.6`
+- Current package version at generation time: `1.0.7`
 - Unity version: `6000.2`
 
 ## Purpose
@@ -56,6 +56,14 @@ Read this file when:
 - Use this guide when changing scripting define symbol presets, platform filters, build inclusion rules, or symbol settings assets.
 - Symbol changes can affect compilation and build output, so verify target platform behavior after changes.
 - `SymbolsBuildProcessor` must not show blocking dialogs in `Application.isBatchMode`; CI/AutoBuild should log symbol differences and continue with the computed build symbols. Keep the interactive confirmation dialog for normal editor builds.
+
+## Agent Skills
+
+- `Skills~/manifest.json` uses schema v2 with the unique `custom-symbols` prefix.
+- `custom-symbols-help` and `custom-symbols-audit` are read-only for Codex and Claude.
+- Audits must use direct `AssetDatabase.FindAssets`/load queries instead of `FindSettingsAsset`, which remembers a path in `EditorPrefs`.
+- Audits may compare existing settings with `PlayerSettings.GetScriptingDefineSymbols`; they must not create settings, call any setter, switch targets, invoke the build processor, or build.
+- The installed help skill must read generated `PACKAGE_SKILLS.md`; do not author that reserved file in package sources.
 
 ## Package Tools Menu
 

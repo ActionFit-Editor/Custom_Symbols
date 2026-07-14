@@ -1,0 +1,4 @@
+interface:
+  display_name: "Custom Symbols Help"
+  short_description: "Explain define-symbol workflows and safety boundaries"
+  default_prompt: "Use $custom-symbols-help to explain Custom Symbols setup, skills, and build behavior."

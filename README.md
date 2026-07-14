@@ -7,7 +7,7 @@
 ```json
 {
   "dependencies": {
-    "com.actionfit.customsymbols": "https://github.com/ActionFit-Editor/Custom_Symbols.git#1.0.6"
+    "com.actionfit.customsymbols": "https://github.com/ActionFit-Editor/Custom_Symbols.git#1.0.7"
   }
 }
 ```
@@ -37,3 +37,12 @@
 `BuildSettingsSO`(별도 BuildSetting 도구)가 프로젝트에 있으면 그 `manageSymbolsOnBuild` 값으로 빌드 시 심볼 관리 on/off를 따릅니다. 없으면 항상 활성(기본값)으로 동작하므로 단독 사용에 문제 없습니다.
 
 `Application.isBatchMode`로 실행되는 CI/AutoBuild에서는 에디터 심볼과 빌드 심볼이 달라도 확인 팝업을 띄우지 않고 로그만 남긴 뒤 빌드용 심볼을 적용합니다. 일반 에디터 빌드에서는 기존처럼 차이를 확인하고 취소할 수 있습니다.
+
+## Agent Skills
+
+schema v2 `Skills~/manifest.json`이 Codex와 Claude에 다음 read-only 스킬을 제공합니다.
+
+- `$custom-symbols-help`: 설정 탐색, 플랫폼 목록과 빌드 전후 심볼 동작을 설명합니다.
+- `$custom-symbols-audit`: 기존 `CustomSymbolsSO`와 PlayerSettings의 현재 define을 비교해 차이와 중복을 보고합니다.
+
+audit은 설정을 만들거나 `EditorPrefs`를 갱신하지 않고, define 적용·플랫폼 전환·빌드를 실행하지 않습니다.
