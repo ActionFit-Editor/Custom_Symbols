@@ -7,17 +7,17 @@
 ```json
 {
   "dependencies": {
-    "com.actionfit.customsymbols": "https://github.com/ActionFit-Editor/Custom_Symbols.git#1.0.7"
+    "com.actionfit.customsymbols": "https://github.com/ActionFit-Editor/Custom_Symbols.git#1.0.8"
   }
 }
 ```
 
-## Unity Menu
+## Unity 메뉴
 
 - Package root: `Tools > Package > Custom Symbols`.
 - README: `Tools > Package > Custom Symbols > README`.
 - Setting SO: `Tools > Package > Custom Symbols > Setting SO` (없으면 기본 경로에 생성 후 선택).
-- Package commands stay under the same package root and appear above the separated README/Setting SO entries when those entries exist.
+- 패키지 명령은 같은 package root 아래에 유지하며 README/Setting SO 항목이 있으면 분리된 해당 항목보다 위에 표시합니다.
 
 ## 구성
 
@@ -38,7 +38,7 @@
 
 `Application.isBatchMode`로 실행되는 CI/AutoBuild에서는 에디터 심볼과 빌드 심볼이 달라도 확인 팝업을 띄우지 않고 로그만 남긴 뒤 빌드용 심볼을 적용합니다. 일반 에디터 빌드에서는 기존처럼 차이를 확인하고 취소할 수 있습니다.
 
-## Agent Skills
+## Agent Skill 안내
 
 schema v2 `Skills~/manifest.json`이 Codex와 Claude에 다음 read-only 스킬을 제공합니다.
 
