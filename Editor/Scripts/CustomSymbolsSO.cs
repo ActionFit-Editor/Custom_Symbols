@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using ActionFit.SOSingleton;
+using ActionFit.SOSingleton.Editor;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -9,7 +11,14 @@ using UnityEditor.Build;
 #endif
 
 [CreateAssetMenu(fileName = "SymbolsSettings", menuName = "CustomEditor/CustomSymbols")]
-public class CustomSymbolsSO : ScriptableObject
+[ActionFitSettingsAsset(
+    "CustomSymbols",
+    ActionFitSettingsAssetLifetime.EditorOnly,
+    LegacyPaths = new string[]
+    {
+        "Assets/_Data/_CustomSymbols/SymbolsSettings.asset"
+    })]
+public class CustomSymbolsSO : ScriptableObject, IActionFitSettingsAssetInitializer
 {
     [Header("Custom All Symbols")] // 등록된 모든 심볼을 저장
     public List<CustomSymbolEntry> customAllSymbols = new();
@@ -45,18 +54,8 @@ public class CustomSymbolsSO : ScriptableObject
         var savedSettings = LoadAndRemember(EditorPrefs.GetString(SettingsPrefsKey, ""));
         if (savedSettings != null) return savedSettings;
 
-        var defaultSettings = LoadAndRemember(DefaultSettingsAssetPath);
-        if (defaultSettings != null) return defaultSettings;
-
-        string[] guids = AssetDatabase.FindAssets("t:CustomSymbolsSO");
-        if (guids.Length == 0) return null;
-
-        string path = guids
-            .Select(AssetDatabase.GUIDToAssetPath)
-            .OrderBy(assetPath => assetPath.StartsWith("Assets/", StringComparison.Ordinal) ? 0 : 1)
-            .ThenBy(assetPath => assetPath, StringComparer.Ordinal)
-            .FirstOrDefault();
-        return LoadAndRemember(path);
+        var result = ActionFitSettingsAssetProvider.Resolve(typeof(CustomSymbolsSO), false);
+        return LoadAndRemember(result.ActualPath);
     }
 
     /// <summary>
@@ -64,10 +63,15 @@ public class CustomSymbolsSO : ScriptableObject
     /// </summary>
     public static CustomSymbolsSO FindOrCreateSettingsAsset()
     {
-        var settings = FindSettingsAsset();
-        if (settings != null) return settings;
+        var settings = ActionFitSettingsAssetProvider.GetOrCreate<CustomSymbolsSO>();
+        return settings == null
+            ? null
+            : LoadAndRemember(AssetDatabase.GetAssetPath(settings));
+    }
 
-        return CreateSettingsAsset(DefaultSettingsAssetPath);
+    public void InitializeNewSettingsAsset()
+    {
+        InitializeFromCurrentProjectSymbols();
     }
 
     internal static CustomSymbolsSO CreateSettingsAsset(string assetPath)

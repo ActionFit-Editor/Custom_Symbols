@@ -7,10 +7,16 @@ This file is shipped inside the UPM package so an AI assistant in a consuming Un
 - Package ID: `com.actionfit.customsymbols`
 - Display name: Custom Symbols
 - Repository: `https://github.com/ActionFit-Editor/Custom_Symbols.git`
-- Current package version at generation time: `1.0.8`
+- Current package version at generation time: `1.0.9`
 - Unity version: `6000.2`
 
 ## Purpose
+
+### Settings SO Lifecycle
+
+- `CustomSymbolsSO` is registered as `EditorOnly`; canonical path is `Assets/_Data/_CustomSymbols/CustomSymbolsSO.asset`.
+- Existing `Assets/_Data/_CustomSymbols/SymbolsSettings.asset` is a declared legacy candidate and remains in place.
+- A newly created asset initializes from current PlayerSettings symbols. Existing configured symbols are never reset by lifecycle resolution.
 
 Custom Symbols manages scripting define symbols. Use `README.md`, `package.json`, package source files, and `Editor/PackageInfo/ActionFitPackageInfo_SO.asset` together to understand the user-facing workflow and catalog metadata.
 

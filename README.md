@@ -2,12 +2,16 @@
 
 스크립팅 디파인 심볼을 **플랫폼별로 관리**하고, 빌드 시 빌드 미포함 심볼을 자동 제외했다가 복원하는 Unity 에디터 툴입니다.
 
+## 설정 SO 수명주기
+
+`CustomSymbolsSO`의 canonical 경로는 `Assets/_Data/_CustomSymbols/CustomSymbolsSO.asset`이며, 현재 프로젝트의 `SymbolsSettings.asset`는 legacy 후보로 그대로 재사용합니다. 새 에셋을 만들 때만 현재 PlayerSettings 심볼을 초기값으로 복사하고, 기존 심볼 목록은 lifecycle 탐색이 덮어쓰지 않습니다.
+
 ## 설치 (manifest.json, Git URL)
 
 ```json
 {
   "dependencies": {
-    "com.actionfit.customsymbols": "https://github.com/ActionFit-Editor/Custom_Symbols.git#1.0.8"
+    "com.actionfit.customsymbols": "https://github.com/ActionFit-Editor/Custom_Symbols.git#1.0.9"
   }
 }
 ```
